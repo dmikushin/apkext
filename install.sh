@@ -1,20 +1,28 @@
-#/bin/sh
-cd $( dirname $0 )
-mkdir -p tools
-cd tools
-if [ ! -d dex2jar-2.0 ]; then
-  wget https://github.com/pxb1988/dex2jar/releases/download/2.0/dex-tools-2.0.zip -O dex2jar.zip
-  unzip dex2jar.zip
-  rm dex2jar.zip
-  chmod +x dex2jar-2.0/*.sh
+#!/bin/sh
+
+# Load configuration
+script_dir="$( dirname $0 )"
+if [ -f "$script_dir/.env" ]; then
+    . "$script_dir/.env"
 fi
 
-if [ ! -f apktool.jar ]; then
-  wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.0.1.jar -O apktool.jar
-  unzip apktool.jar prebuilt/aapt/*
+cd "$script_dir"
+mkdir -p "$TOOLS_DIR"
+cd "$TOOLS_DIR"
+
+if [ ! -d "$DEX2JAR_DIR" ]; then
+  wget "$DEX2JAR_URL" -O "$DEX2JAR_ZIP"
+  unzip "$DEX2JAR_ZIP"
+  rm "$DEX2JAR_ZIP"
+  chmod +x "$DEX2JAR_DIR"/*.sh
 fi
 
-if [ ! -f procyon.jar ]; then
-  wget https://bitbucket.org/mstrobel/procyon/downloads/procyon-decompiler-0.5.30.jar -O procyon.jar
+if [ ! -f "$APKTOOL_JAR" ]; then
+  wget "$APKTOOL_URL" -O "$APKTOOL_JAR"
+  unzip "$APKTOOL_JAR" prebuilt/aapt/*
+fi
+
+if [ ! -f "$PROCYON_JAR" ]; then
+  wget "$PROCYON_URL" -O "$PROCYON_JAR"
 fi
 
