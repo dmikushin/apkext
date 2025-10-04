@@ -3,6 +3,7 @@ tools/
 
 # Go build artifacts
 build/
+test-build
 *.exe
 *.exe~
 *.dll

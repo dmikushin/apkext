@@ -2,6 +2,7 @@ package apk
 
 import (
 	"fmt"
+	"path/filepath"
 	"runtime"
 
 	"github.com/dmikushin/apkext/internal/config"
@@ -24,8 +25,13 @@ func NewBuilder(cfg *config.Config) *Builder {
 func (b *Builder) Pack(unpackedDir, outputApk string) error {
 	defer b.toolMgr.Cleanup()
 
+	// Validate input
 	if !b.toolMgr.FileExists(unpackedDir) {
 		return fmt.Errorf("unpacked directory does not exist: %s", unpackedDir)
+	}
+
+	if filepath.Ext(outputApk) != ".apk" {
+		return fmt.Errorf("output file must have .apk extension")
 	}
 
 	b.toolMgr.PrintMessage(fmt.Sprintf("[+] Building APK from '%s' to '%s'", unpackedDir, outputApk))
