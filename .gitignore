@@ -1,1 +1,32 @@
 tools/
+
+# Go build artifacts
+build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test files
+*.test
+*.prof
+
+# Go module cache
+go.sum
+
+# Embedded assets (downloaded during build)
+internal/assets/jars/*.jar
+internal/assets/tools/*
+!internal/assets/jars/.gitkeep
+!internal/assets/tools/.gitkeep
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
