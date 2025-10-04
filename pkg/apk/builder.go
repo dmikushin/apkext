@@ -23,7 +23,9 @@ func NewBuilder(cfg *config.Config) *Builder {
 }
 
 func (b *Builder) Pack(unpackedDir, outputApk string) error {
-	defer b.toolMgr.Cleanup()
+	defer func() {
+		_ = b.toolMgr.Cleanup()
+	}()
 
 	// Validate input
 	if !b.toolMgr.FileExists(unpackedDir) {

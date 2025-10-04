@@ -23,7 +23,9 @@ func NewExtractor(cfg *config.Config) *Extractor {
 }
 
 func (e *Extractor) Unpack(apkPath string) error {
-	defer e.toolMgr.Cleanup()
+	defer func() {
+		_ = e.toolMgr.Cleanup()
+	}()
 
 	// Validate input
 	if filepath.Ext(apkPath) != ".apk" {

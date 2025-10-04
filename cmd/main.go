@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/dmikushin/apkext/internal/config"
 	"github.com/dmikushin/apkext/pkg/apk"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -46,8 +47,8 @@ and decompiling Java classes to source code.`,
 var packCmd = &cobra.Command{
 	Use:   "pack <unpacked-dir> <output-apk>",
 	Short: "Pack source code back to APK",
-	Long: `Pack the unpacked source code directory back into an APK file.`,
-	Args: cobra.ExactArgs(2),
+	Long:  `Pack the unpacked source code directory back into an APK file.`,
+	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Load()
 		builder := apk.NewBuilder(cfg)
@@ -68,7 +69,7 @@ func init() {
 Simply type ` + rootCmd.Name() + ` help [path to command] for full details.`,
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) == 0 {
-				rootCmd.Help()
+				_ = rootCmd.Help()
 				return
 			}
 			cmd, _, e := rootCmd.Find(args)
@@ -76,7 +77,7 @@ Simply type ` + rootCmd.Name() + ` help [path to command] for full details.`,
 				rootCmd.Printf("Unknown help topic %#q\n", args)
 			} else {
 				cmd.InitDefaultHelpFlag()
-				cmd.Help()
+				_ = cmd.Help()
 			}
 		},
 	}

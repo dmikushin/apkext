@@ -127,8 +127,8 @@ func (m *Manager) ExtractZipFromJar(jarPath, pattern, destDir string) error {
 		}
 
 		destPath := filepath.Join(destDir, f.Name)
-		if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
-			return fmt.Errorf("failed to create directory %s: %w", filepath.Dir(destPath), err)
+		if mkdirErr := os.MkdirAll(filepath.Dir(destPath), 0755); mkdirErr != nil {
+			return fmt.Errorf("failed to create directory %s: %w", filepath.Dir(destPath), mkdirErr)
 		}
 
 		rc, err := f.Open()

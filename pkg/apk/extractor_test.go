@@ -68,8 +68,8 @@ func TestExtractor_Unpack_ExistingDirectory(t *testing.T) {
 
 	// Create the expected extract directory
 	extractDir := filepath.Join(tmpDir, "test")
-	if err := os.MkdirAll(extractDir, 0755); err != nil {
-		t.Fatal(err)
+	if mkdirErr := os.MkdirAll(extractDir, 0755); mkdirErr != nil {
+		t.Fatal(mkdirErr)
 	}
 
 	cfg := &config.Config{}

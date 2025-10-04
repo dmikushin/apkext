@@ -16,11 +16,11 @@ type Colors struct {
 }
 
 type Tools struct {
-	ApktoolJar      string
-	ProcyonJar      string
-	Dex2JarScript   string
-	AaptPath        string
-	FrameworkDir    string
+	ApktoolJar    string
+	ProcyonJar    string
+	Dex2JarScript string
+	AaptPath      string
+	FrameworkDir  string
 }
 
 func Load() *Config {
@@ -31,10 +31,10 @@ func Load() *Config {
 			Reset: "\033[0;m",
 		},
 		Tools: Tools{
-			ApktoolJar:      "apktool.jar",
-			ProcyonJar:      "procyon-decompiler-v0.6.1.jar",
-			Dex2JarScript:   "dex-tools-v2.4/d2j-dex2jar.sh",
-			FrameworkDir:    "framework",
+			ApktoolJar:    "apktool.jar",
+			ProcyonJar:    "procyon-decompiler-v0.6.1.jar",
+			Dex2JarScript: "dex-tools-v2.4/d2j-dex2jar.sh",
+			FrameworkDir:  "framework",
 		},
 	}
 
