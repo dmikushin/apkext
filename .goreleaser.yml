@@ -1,0 +1,161 @@
+# .goreleaser.yml
+# GoReleaser configuration for automated releases
+
+version: 1
+
+before:
+  hooks:
+    - make download-deps
+
+builds:
+  - id: apkext
+    main: ./cmd
+    binary: apkext
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.BuiltBy=goreleaser
+
+archives:
+  - id: apkext-archive
+    name_template: >-
+      apkext_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+      - .env
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: 'Features'
+      regexp: '^feat:'
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: '^fix:'
+      order: 1
+    - title: 'Performance'
+      regexp: '^perf:'
+      order: 2
+    - title: 'Refactoring'
+      regexp: '^refactor:'
+      order: 3
+    - title: 'Other changes'
+      order: 999
+
+release:
+  github:
+    owner: dmikushin
+    name: apkext
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}} v{{.Version}}"
+  footer: |
+    ## Installation
+
+    ### Via go install
+    ```bash
+    go install github.com/dmikushin/apkext@latest
+    ```
+
+    ### Download binary
+    Download the appropriate binary for your platform from the assets below.
+
+    ### Linux/macOS
+    ```bash
+    # Download and extract (replace VERSION and PLATFORM)
+    tar xzf apkext_VERSION_PLATFORM.tar.gz
+    sudo mv apkext /usr/local/bin/
+    sudo chmod +x /usr/local/bin/apkext
+    ```
+
+    ## Quick Start
+    ```bash
+    # Unpack APK file
+    apkext unpack MyApp.apk
+
+    # Modify files in MyApp/unpacked/ and MyApp/src/
+
+    # Pack back to APK
+    apkext pack MyApp/unpacked/ Modified.apk
+    ```
+
+    ## Requirements
+    - Java (for running embedded JAR utilities)
+    - All APK analysis tools are embedded in the binary
+
+    ---
+    **Full Changelog**: https://github.com/dmikushin/apkext/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+brews:
+  - repository:
+      owner: dmikushin
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    folder: Formula
+    homepage: https://github.com/dmikushin/apkext
+    description: "Modern Go-based tool for extracting and building APK files with embedded JAR utilities"
+    license: "MIT"
+    test: |
+      system "#{bin}/apkext", "--version"
+    install: |
+      bin.install "apkext"
+
+nfpms:
+  - id: packages
+    package_name: apkext
+    homepage: https://github.com/dmikushin/apkext
+    description: "Modern Go-based tool for extracting and building APK files with embedded JAR utilities"
+    maintainer: Dmitry Mikushin <dmitry@kernelgen.org>
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin
+    section: utils
+    priority: optional
+    recommends:
+      - default-jre
+    suggests:
+      - openjdk-11-jre
+    overrides:
+      deb:
+        dependencies:
+          - default-jre-headless | openjdk-11-jre-headless
+      rpm:
+        dependencies:
+          - java-headless

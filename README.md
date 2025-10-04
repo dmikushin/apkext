@@ -1,5 +1,9 @@
 # apkext
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/dmikushin/apkext.svg)](https://pkg.go.dev/github.com/dmikushin/apkext)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dmikushin/apkext)](https://goreportcard.com/report/github.com/dmikushin/apkext)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Modern Go-based tool for extracting and building APK files with embedded JAR utilities.
 
 ## Features
@@ -24,11 +28,42 @@ Modern Go-based tool for extracting and building APK files with embedded JAR uti
 
 ## Requirements
 
-- Go 1.21+ (for building)
-- Java (for running embedded JAR utilities)
-- Standard Unix tools: `wget`, `unzip` (for build process)
+- **Java Runtime**: Required for running embedded JAR utilities (apktool, dex2jar, procyon)
+- **Go 1.21+**: Only needed for building from source
+- **Build tools**: `wget`, `unzip` (only needed for building from source)
 
 ## Installation
+
+### Via go install (recommended)
+
+```bash
+go install github.com/dmikushin/apkext@latest
+```
+
+The binary will be installed to `$GOPATH/bin/apkext` or `~/go/bin/apkext`.
+
+### Download pre-built binary
+
+Download the latest release from [Releases](https://github.com/dmikushin/apkext/releases).
+
+```bash
+# Linux amd64
+wget https://github.com/dmikushin/apkext/releases/latest/download/apkext_linux_x86_64.tar.gz
+tar xzf apkext_linux_x86_64.tar.gz
+sudo mv apkext /usr/local/bin/
+
+# macOS
+wget https://github.com/dmikushin/apkext/releases/latest/download/apkext_darwin_x86_64.tar.gz
+tar xzf apkext_darwin_x86_64.tar.gz
+sudo mv apkext /usr/local/bin/
+```
+
+### Via Homebrew (macOS/Linux)
+
+```bash
+brew tap dmikushin/tap
+brew install apkext
+```
 
 ### Building from source
 

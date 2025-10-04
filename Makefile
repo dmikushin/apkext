@@ -1,4 +1,4 @@
-.PHONY: build clean download-deps deps test install help
+.PHONY: build clean download-deps deps test install help lint fmt goreleaser-check
 
 # Load configuration from .env
 include .env
@@ -47,10 +47,31 @@ download-deps: ## Download JAR dependencies
 	@if [ ! -d "$(TOOLS_DIR)/$(DEX_TOOLS_DIR)" ]; then \
 		echo "Downloading dex2jar..."; \
 		cd $(TOOLS_DIR) && \
-		wget -O "$(DEX2JAR_ZIP)" "$(DEX2JAR_URL)" && \
-		unzip "$(DEX2JAR_ZIP)" && \
-		rm "$(DEX2JAR_ZIP)" && \
-		mv dex2jar-* $(DEX_TOOLS_DIR) && \
+		for attempt in 1 2 3; do \
+			echo "Download attempt $$attempt..."; \
+			rm -rf "$(DEX_TOOLS_DIR)" "$(DEX2JAR_ZIP)" temp_extract_$$$$* && \
+			wget -O "$(DEX2JAR_ZIP)" "$(DEX2JAR_URL)" && \
+			sleep 1 && \
+			if unzip -tq "$(DEX2JAR_ZIP)" >/dev/null 2>&1; then \
+				echo "ZIP file integrity verified"; \
+				break; \
+			else \
+				echo "ZIP file corrupted, retrying..."; \
+				rm -f "$(DEX2JAR_ZIP)"; \
+				if [ $$attempt -eq 3 ]; then \
+					echo "Failed to download valid ZIP after 3 attempts"; \
+					exit 1; \
+				fi; \
+				sleep 2; \
+			fi; \
+		done && \
+		TEMP_DIR="temp_extract_$$$$" && \
+		mkdir -p "$$TEMP_DIR" && \
+		cd "$$TEMP_DIR" && \
+		unzip -q "../$(DEX2JAR_ZIP)" && \
+		cd .. && \
+		mv "$$TEMP_DIR/$(DEX_TOOLS_DIR)" . && \
+		rm -rf "$$TEMP_DIR" "$(DEX2JAR_ZIP)" && \
 		chmod +x $(DEX_TOOLS_DIR)/*.sh; \
 	fi
 
@@ -58,7 +79,7 @@ download-deps: ## Download JAR dependencies
 	@if [ ! -d "$(TOOLS_DIR)/prebuilt" ]; then \
 		echo "Extracting aapt from apktool..."; \
 		cd $(TOOLS_DIR) && \
-		unzip "../jars/$(APKTOOL_JAR)" "prebuilt/aapt/*"; \
+		unzip -oq "../jars/$(APKTOOL_JAR)" "prebuilt/*/aapt*"; \
 	fi
 
 deps: download-deps ## Install Go dependencies and download JAR files
@@ -118,6 +139,25 @@ check-deps: ## Check if required tools are installed
 release: clean deps build ## Build release version
 	@echo "Building release..."
 	@cp $(BUILD_DIR)/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)
+
+# Linting and formatting
+lint: ## Run golangci-lint
+	@echo "Running linter..."
+	@golangci-lint run
+
+fmt: ## Format Go code
+	@echo "Formatting code..."
+	@go fmt ./...
+	@goimports -w .
+
+# Release targets
+goreleaser-check: ## Check GoReleaser configuration
+	@echo "Checking GoReleaser config..."
+	@goreleaser check
+
+goreleaser-snapshot: ## Build snapshot release with GoReleaser
+	@echo "Building snapshot release..."
+	@goreleaser release --snapshot --clean
 
 # Show variables
 show-vars: ## Show build variables

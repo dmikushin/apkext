@@ -1,3 +1,4 @@
+# Downloaded tools directory (not internal Go packages)
 tools/
 
 # Go build artifacts
@@ -13,13 +14,15 @@ build/
 *.prof
 
 # Go module cache
-go.sum
 
 # Embedded assets (downloaded during build)
 internal/assets/jars/*.jar
 internal/assets/tools/*
 !internal/assets/jars/.gitkeep
 !internal/assets/tools/.gitkeep
+
+# Allow internal Go packages
+!internal/tools/
 
 # IDE files
 .vscode/
