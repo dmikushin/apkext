@@ -3,6 +3,8 @@ run:
   go: '1.21'
 
 linters-settings:
+  gofmt:
+    simplify: true
   govet:
     enable:
       - shadow
