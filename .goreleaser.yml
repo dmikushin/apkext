@@ -7,6 +7,17 @@ before:
   hooks:
     - go generate internal/assets/assets.go
 
+after:
+  hooks:
+    # Trigger pkg.go.dev indexing by warming the Go proxy
+    - cmd: curl -f "https://proxy.golang.org/github.com/dmikushin/apkext/@v/{{ .Tag }}.info" || true
+      env:
+        - VERSION={{ .Tag }}
+    # Alternative warming using go list
+    - cmd: GOPROXY=proxy.golang.org go list -m github.com/dmikushin/apkext@{{ .Tag }} || true
+      env:
+        - VERSION={{ .Tag }}
+
 builds:
   - id: apkext
     main: .
