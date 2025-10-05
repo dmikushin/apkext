@@ -9,7 +9,7 @@ before:
 
 builds:
   - id: apkext
-    main: ./cmd
+    main: .
     binary: apkext
     env:
       - CGO_ENABLED=0
