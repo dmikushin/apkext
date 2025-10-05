@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	"github.com/spf13/cobra"
 
@@ -12,11 +13,42 @@ import (
 	"github.com/dmikushin/apkext/pkg/apk"
 )
 
-var (
+// getVersionInfo extracts version information from build info
+func getVersionInfo() (version, commit, date string) {
 	version = "dev"
-	commit  = "unknown"
-	date    = "unknown"
-)
+	commit = "unknown"
+	date = "unknown"
+
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return
+	}
+
+	// Use module version if available (from go install with tag)
+	if info.Main.Version != "" && info.Main.Version != "(devel)" {
+		version = info.Main.Version
+	}
+
+	// Extract VCS information from build settings
+	for _, setting := range info.Settings {
+		switch setting.Key {
+		case "vcs.revision":
+			if len(setting.Value) >= 7 {
+				commit = setting.Value[:7] // Short commit hash
+			} else {
+				commit = setting.Value
+			}
+		case "vcs.time":
+			date = setting.Value
+		case "vcs.modified":
+			if setting.Value == "true" {
+				commit += "-dirty"
+			}
+		}
+	}
+
+	return
+}
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
@@ -30,7 +62,6 @@ var rootCmd = &cobra.Command{
 	Short: "APK extraction and building tool",
 	Long: `APK extraction and building tool with embedded JAR utilities.
 Supports unpacking APK files to source code and repacking them back.`,
-	Version: fmt.Sprintf("%s (commit: %s, date: %s)", version, commit, date),
 }
 
 var unpackCmd = &cobra.Command{
@@ -76,6 +107,10 @@ This allows AI assistants to unpack and pack APK files through the Model Context
 }
 
 func init() {
+	// Set version dynamically
+	version, commit, date := getVersionInfo()
+	rootCmd.Version = fmt.Sprintf("%s (commit: %s, date: %s)", version, commit, date)
+
 	// Add commands in desired help order - main commands first
 	rootCmd.AddCommand(unpackCmd)
 	rootCmd.AddCommand(packCmd)

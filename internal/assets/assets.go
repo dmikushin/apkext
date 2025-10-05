@@ -18,8 +18,6 @@ var embeddedJars embed.FS
 //go:embed tools/*
 var embeddedTools embed.FS
 
-
-
 type Manager struct {
 	tempDir string
 }
