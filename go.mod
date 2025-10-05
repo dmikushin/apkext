@@ -4,6 +4,8 @@ go 1.23.0
 
 toolchain go1.24.4
 
+retract v1.0.31 // Published by mistake, broken go install support
+
 require (
 	github.com/modelcontextprotocol/go-sdk v1.0.0
 	github.com/spf13/cobra v1.8.0

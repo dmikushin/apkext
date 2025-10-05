@@ -41,8 +41,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Download dependencies
-        run: make download-deps
+      - name: Generate assets
+        run: go generate internal/assets/assets.go
 
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
@@ -74,8 +74,8 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Download dependencies
-        run: make download-deps
+      - name: Generate assets
+        run: go generate internal/assets/assets.go
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
@@ -106,8 +106,13 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Generate assets
+        run: go generate internal/assets/assets.go
+
       - name: Build
-        run: make build
+        run: |
+          mkdir -p build
+          go build -o build/apkext .
 
       - name: Test binary
         run: ./build/apkext --version && ./build/apkext --help

@@ -180,8 +180,7 @@ apkext/
 │   ├── config/            # Configuration management
 │   └── tools/             # Tool execution and management
 ├── pkg/apk/               # APK processing logic
-├── build/                 # Build outputs
-└── Makefile               # Build automation
+└── build/                 # Build outputs
 ```
 
 ## Legacy Shell Scripts

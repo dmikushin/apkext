@@ -5,7 +5,7 @@ version: 1
 
 before:
   hooks:
-    - make download-deps
+    - go generate internal/assets/assets.go
 
 builds:
   - id: apkext

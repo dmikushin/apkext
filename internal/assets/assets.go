@@ -1,5 +1,7 @@
 package assets
 
+//go:generate go run ../../tools/download-deps/main.go
+
 import (
 	"archive/zip"
 	"embed"
@@ -15,6 +17,8 @@ var embeddedJars embed.FS
 
 //go:embed tools/*
 var embeddedTools embed.FS
+
+
 
 type Manager struct {
 	tempDir string

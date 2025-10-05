@@ -1,5 +1,8 @@
+CLAUDE.md
+
 # Downloaded tools directory (not internal Go packages)
 tools/
+!tools/download-deps/
 
 # Go build artifacts
 build/
