@@ -1,0 +1,38 @@
+From d3ef4345db7dc9a6dd150781e0329963577f84c0 Mon Sep 17 00:00:00 2001
+From: Dmitry Mikushin <dmitry@kernelgen.org>
+Date: Sun, 5 Oct 2025 20:52:03 +0200
+Subject: [PATCH] Configure automatic pkg.go.dev publishing
+
+Add after hooks to .goreleaser.yml that warm the Go proxy after each release:
+- curl to proxy.golang.org API to trigger module indexing
+- go list with GOPROXY fallback for redundancy
+- Ensures new versions appear on pkg.go.dev immediately
+---
+ .goreleaser.yml | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/.goreleaser.yml b/.goreleaser.yml
+index 5ee60f2..1e29264 100644
+--- a/.goreleaser.yml
++++ b/.goreleaser.yml
+@@ -7,6 +7,17 @@ before:
+   hooks:
+     - go generate internal/assets/assets.go
+ 
++after:
++  hooks:
++    # Trigger pkg.go.dev indexing by warming the Go proxy
++    - cmd: curl -f "https://proxy.golang.org/github.com/dmikushin/apkext/@v/{{ .Tag }}.info" || true
++      env:
++        - VERSION={{ .Tag }}
++    # Alternative warming using go list
++    - cmd: GOPROXY=proxy.golang.org go list -m github.com/dmikushin/apkext@{{ .Tag }} || true
++      env:
++        - VERSION={{ .Tag }}
++
+ builds:
+   - id: apkext
+     main: .
+-- 
+2.34.1
+

@@ -50,3 +50,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+
+      - name: Warm Go proxy for pkg.go.dev
+        run: |
+          # Extract tag from GITHUB_REF
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "Warming Go proxy for tag: $TAG"
+
+          # Trigger pkg.go.dev indexing by warming the Go proxy
+          curl -f "https://proxy.golang.org/github.com/dmikushin/apkext/@v/${TAG}.info" || echo "Primary proxy warming failed, continuing..."
+
+          # Alternative warming using go list
+          GOPROXY=proxy.golang.org go list -m "github.com/dmikushin/apkext@${TAG}" || echo "Secondary proxy warming failed, continuing..."
+
+          echo "Go proxy warming completed"
