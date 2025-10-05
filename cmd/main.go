@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/dmikushin/apkext/internal/config"
+	"github.com/dmikushin/apkext/internal/mcp"
 	"github.com/dmikushin/apkext/pkg/apk"
 )
 
@@ -56,10 +58,28 @@ var packCmd = &cobra.Command{
 	},
 }
 
+var mcpCmd = &cobra.Command{
+	Use:   "mcp",
+	Short: "Start MCP (Model Context Protocol) server",
+	Long: `Start MCP server to enable Claude and other AI assistants to use apkext tools.
+This allows AI assistants to unpack and pack APK files through the Model Context Protocol.`,
+	Args: cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		server, err := mcp.NewServer()
+		if err != nil {
+			return fmt.Errorf("failed to create MCP server: %w", err)
+		}
+
+		ctx := context.Background()
+		return server.Run(ctx)
+	},
+}
+
 func init() {
 	// Add commands in desired help order - main commands first
 	rootCmd.AddCommand(unpackCmd)
 	rootCmd.AddCommand(packCmd)
+	rootCmd.AddCommand(mcpCmd)
 
 	// Add explicit help command to make it visible
 	helpCmd := &cobra.Command{

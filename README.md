@@ -106,6 +106,44 @@ This creates a directory `App/` containing:
 ./build/apkext pack --help
 ```
 
+### MCP (Model Context Protocol) Integration
+
+The tool supports MCP integration to allow AI assistants like Claude to use APK extraction capabilities.
+
+#### Start MCP server
+
+```bash
+apkext mcp
+```
+
+#### Connect to Claude
+
+Add the following MCP server configuration to your Claude client:
+
+```bash
+claude mcp add-json apkext -s user '{
+    "command": "apkext",
+    "args": ["mcp"]
+}'
+```
+
+This enables Claude to:
+- **unpack_apk**: Extract and decompile APK files
+- **pack_apk**: Repack modified APK files
+
+#### Available MCP tools
+
+1. **unpack_apk**
+   - **Description**: Unpack an APK file to extract resources, libraries, assets, and decompile Java source code
+   - **Parameters**:
+     - `apk_path` (string): Path to the APK file to unpack
+
+2. **pack_apk**
+   - **Description**: Pack an unpacked APK directory back into an APK file
+   - **Parameters**:
+     - `unpacked_dir` (string): Path to the unpacked APK directory (containing 'unpacked' subdirectory)
+     - `output_apk` (string): Path for the output APK file
+
 ## Development
 
 ### Make targets
