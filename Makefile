@@ -90,7 +90,7 @@ deps: download-deps ## Install Go dependencies and download JAR files
 build: deps ## Build the binary
 	@echo "Building $(BINARY_NAME)..."
 	@mkdir -p $(BUILD_DIR)
-	@go build $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
+	@go build $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) .
 
 test: ## Run tests
 	@echo "Running tests..."
@@ -104,13 +104,13 @@ clean: ## Clean build artifacts and downloaded dependencies
 
 install: build ## Install binary to GOPATH/bin
 	@echo "Installing $(BINARY_NAME)..."
-	@go install $(BUILD_FLAGS) ./cmd
+	@go install $(BUILD_FLAGS) .
 
 # Development targets
 dev-build: ## Quick build without downloading dependencies
 	@echo "Quick build..."
 	@mkdir -p $(BUILD_DIR)
-	@go build $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
+	@go build $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) .
 
 run-unpack: build ## Run unpack command (requires APK_FILE variable)
 	@if [ -z "$(APK_FILE)" ]; then \
