@@ -6,12 +6,12 @@
 
 Modern Go-based tool for extracting and building APK files with embedded JAR utilities.
 
-## Features
+## What this does
 
-- **Single Binary**: All JAR utilities are embedded as resources - no separate installation required
-- **Cross-platform**: Supports Linux and macOS
-- **Modern CLI**: Clean command-line interface using Cobra
-- **Improved Decompiler**: Uses dmikushin/procyon v0.6.1 with better error handling and Java 11 support
+- Unpack APK files to extract resources, libraries, assets, and smali code
+- Convert DEX bytecode to JAR format
+- Decompile JAR files to readable Java source code
+- Repack modified resources back into APK files
 
 ## What this uses
 
@@ -19,12 +19,12 @@ Modern Go-based tool for extracting and building APK files with embedded JAR uti
 - [dex2jar](https://github.com/pxb1988/dex2jar) - DEX to JAR conversion
 - [procyon](https://github.com/dmikushin/procyon) - Enhanced Java decompiler with fixes
 
-## What this does
+## Features
 
-- Unpack APK files to extract resources, libraries, assets, and smali code
-- Convert DEX bytecode to JAR format
-- Decompile JAR files to readable Java source code
-- Repack modified resources back into APK files
+- **Single Binary**: All JAR utilities are embedded as resources - no separate installation required
+- **Cross-platform**: Supports Linux and macOS
+- **Modern CLI**: Clean command-line interface using Cobra
+- **Improved Decompiler**: Uses dmikushin/procyon v0.6.1 with better error handling and Java 11 support
 
 ## Requirements
 
