@@ -20,13 +20,13 @@ type Server struct {
 
 // UnpackArgs represents arguments for the unpack tool
 type UnpackArgs struct {
-	ApkPath string `json:"apk_path" jsonschema:"description=Path to the APK file to unpack"`
+	ApkPath string `json:"apk_path" jsonschema:"description:Path to the APK file to unpack"`
 }
 
 // PackArgs represents arguments for the pack tool
 type PackArgs struct {
-	UnpackedDir string `json:"unpacked_dir" jsonschema:"description=Path to the unpacked APK directory (containing 'unpacked' subdirectory)"`
-	OutputApk   string `json:"output_apk" jsonschema:"description=Path for the output APK file"`
+	UnpackedDir string `json:"unpacked_dir" jsonschema:"description:Path to the unpacked APK directory (containing 'unpacked' subdirectory)"`
+	OutputApk   string `json:"output_apk" jsonschema:"description:Path for the output APK file"`
 }
 
 // NewServer creates a new MCP server instance
