@@ -47,6 +47,14 @@ jobs:
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
+      - name: Download test APK for integration tests
+        run: |
+          mkdir -p testdata
+          wget -q https://github.com/appium/android-apidemos/releases/download/v3.1.0/selendroid-test-app-0.17.0.apk -O testdata/sample.apk
+
+      - name: Run integration tests
+        run: go test -v -tags=integration ./...
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
