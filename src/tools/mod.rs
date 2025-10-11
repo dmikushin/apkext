@@ -77,10 +77,30 @@ impl ToolManager {
     }
 
     pub async fn run_dex2jar(&self, args: &[&str]) -> Result<()> {
-        let script_path = self.asset_manager.get_script_path("dex-tools-v2.4/d2j-dex2jar.sh");
+        // Build classpath from all JAR files in lib directory
+        let lib_dir = self.asset_manager.get_script_path("dex-tools-v2.4/dex-tools-v2.4/lib/dex-tools-v2.4/lib");
 
-        let mut cmd = Command::new("bash");
-        cmd.arg(&script_path);
+        let mut classpath = ".".to_string();
+
+        if let Ok(entries) = std::fs::read_dir(&lib_dir) {
+            for entry in entries {
+                if let Ok(entry) = entry {
+                    let path = entry.path();
+                    if path.extension().and_then(|s| s.to_str()) == Some("jar") {
+                        classpath.push(':');
+                        classpath.push_str(&path.to_string_lossy());
+                    }
+                }
+            }
+        }
+
+        let mut cmd = Command::new(&self.config.java.java_path);
+        cmd.args(&[
+            "-Xms512m",
+            "-Xmx2048m",
+            "-classpath", &classpath,
+            "com.googlecode.dex2jar.tools.Dex2jarCmd"
+        ]);
         cmd.args(args);
 
         let output = cmd.output().await?;

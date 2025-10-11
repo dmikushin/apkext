@@ -26,7 +26,9 @@ impl Extractor {
 
         let extract_dir = self.get_extract_dir(apk_path);
         if extract_dir.exists() {
-            return Err(anyhow::anyhow!("Directory '{}' already exists. Remove or rename it and then retry", extract_dir.display()));
+            println!("[+] Removing existing directory '{}'", extract_dir.display());
+            fs::remove_dir_all(&extract_dir).await
+                .map_err(|e| anyhow::anyhow!("Failed to remove existing directory: {}", e))?;
         }
 
         println!("[+] Extracting under '{}'", extract_dir.display());
@@ -60,7 +62,7 @@ impl Extractor {
         println!("[+] Extracting resources");
 
         let unpacked_dir = extract_dir.join("unpacked");
-        self.tool_manager.run_apktool(&["d", &apk_path.to_string_lossy(), "-o", &unpacked_dir.to_string_lossy()]).await
+        self.tool_manager.run_apktool(&["d", "-f", &apk_path.to_string_lossy(), "-o", &unpacked_dir.to_string_lossy()]).await
     }
 
     async fn extract_dex(&self, apk_path: &Path, extract_dir: &Path) -> Result<()> {

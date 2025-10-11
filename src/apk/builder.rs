@@ -1,14 +1,16 @@
-use crate::{config::Config, tools::ToolManager, Result};
+use crate::{config::Config, tools::ToolManager, assets::AssetManager, Result};
 use std::path::Path;
 
 pub struct Builder {
     tool_manager: ToolManager,
+    asset_manager: AssetManager,
 }
 
 impl Builder {
     pub fn new(config: Config) -> Self {
         let tool_manager = ToolManager::new(config);
-        Self { tool_manager }
+        let asset_manager = AssetManager::new().expect("Failed to create asset manager");
+        Self { tool_manager, asset_manager }
     }
 
     pub async fn pack(&self, unpacked_dir: &str, output_apk: &str) -> Result<()> {
@@ -26,7 +28,7 @@ impl Builder {
 
         println!("[+] Building APK from '{}' to '{}'", unpacked_dir.display(), output_apk.display());
 
-        // Get platform-specific aapt path
+        // Get platform-specific aapt path through asset manager
         let aapt_path = self.get_aapt_path();
 
         // Run apktool to build APK
@@ -50,15 +52,15 @@ impl Builder {
     fn get_aapt_path(&self) -> String {
         use std::env;
 
-        let base_path = match (env::consts::OS, env::consts::ARCH) {
-            ("linux", "x86_64") => "prebuilt/linux/aapt_64",
-            ("linux", _) => "prebuilt/linux/aapt",
-            ("macos", _) => "prebuilt/macosx/aapt_64",
-            ("windows", "x86_64") => "prebuilt/windows/aapt_64.exe",
-            ("windows", _) => "prebuilt/windows/aapt.exe",
-            _ => "prebuilt/linux/aapt_64", // default
+        let relative_path = match (env::consts::OS, env::consts::ARCH) {
+            ("linux", "x86_64") => "prebuilt/prebuilt/linux/prebuilt/linux/aapt_64",
+            ("linux", _) => "prebuilt/prebuilt/linux/prebuilt/linux/aapt",
+            ("macos", _) => "prebuilt/prebuilt/macosx/prebuilt/macosx/aapt_64",
+            ("windows", "x86_64") => "prebuilt/prebuilt/windows/prebuilt/windows/aapt_64.exe",
+            ("windows", _) => "prebuilt/prebuilt/windows/prebuilt/windows/aapt.exe",
+            _ => "prebuilt/prebuilt/linux/prebuilt/linux/aapt_64", // default
         };
 
-        base_path.to_string()
+        self.asset_manager.get_script_path(relative_path).to_string_lossy().to_string()
     }
 }
