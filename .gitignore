@@ -41,8 +41,8 @@ pids
 unpacked/
 extracted/
 
-# Downloaded assets
-/assets/
+# Downloaded JAR files (tools remain embedded)
+/assets/jars/*.jar
 
 # Build artifacts
 *.exe
