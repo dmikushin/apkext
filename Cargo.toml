@@ -1,6 +1,6 @@
 [package]
 name = "apkext"
-version = "1.0.37"
+version = "1.0.38"
 edition = "2021"
 description = "Modern Rust-based tool for extracting and building APK files with embedded JAR utilities"
 authors = ["Dmitry Mikushin <dmitry@kernelgen.org>"]

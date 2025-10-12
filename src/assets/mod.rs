@@ -1,7 +1,7 @@
 use crate::Result;
 use include_dir::{include_dir, Dir};
 use std::path::{Path, PathBuf};
-use tempfile::TempDir;
+use std::fs;
 
 // Embedded JAR files - downloaded during build.rs
 static APKTOOL_JAR: &[u8] = include_bytes!("../../assets/jars/apktool.jar");
@@ -11,37 +11,76 @@ static PROCYON_JAR: &[u8] = include_bytes!("../../assets/jars/procyon-decompiler
 static TOOLS_DIR: Dir = include_dir!("assets/tools");
 
 pub struct AssetManager {
-    temp_dir: TempDir,
     tools_path: PathBuf,
 }
 
 impl AssetManager {
     pub fn new() -> Result<Self> {
-        let temp_dir = TempDir::new()?;
-        let tools_path = temp_dir.path().to_path_buf();
+        let tools_path = Self::get_config_dir()?;
 
-        let manager = Self {
-            temp_dir,
-            tools_path,
-        };
+        let manager = Self { tools_path };
 
-        manager.extract_all()?;
+        // Only extract if assets don't exist or are outdated
+        if manager.needs_extraction()? {
+            manager.extract_all()?;
+        }
+
         Ok(manager)
     }
 
+    fn get_config_dir() -> Result<PathBuf> {
+        let config_dir = dirs::config_dir()
+            .ok_or_else(|| anyhow::anyhow!("Could not determine config directory"))?
+            .join("apkext");
+
+        fs::create_dir_all(&config_dir)?;
+        Ok(config_dir)
+    }
+
+    fn needs_extraction(&self) -> Result<bool> {
+        // Check if all required files exist
+        let jars_dir = self.tools_path.join("jars");
+        let apktool_jar = jars_dir.join("apktool.jar");
+        let procyon_jar = jars_dir.join("procyon-decompiler-v0.6.1.jar");
+
+        // Check if version file exists and matches current version
+        let version_file = self.tools_path.join(".version");
+        let current_version = env!("CARGO_PKG_VERSION");
+
+        if !apktool_jar.exists() || !procyon_jar.exists() || !version_file.exists() {
+            return Ok(true);
+        }
+
+        // Check version
+        match fs::read_to_string(&version_file) {
+            Ok(stored_version) => Ok(stored_version.trim() != current_version),
+            Err(_) => Ok(true),
+        }
+    }
+
     fn extract_all(&self) -> Result<()> {
+        println!("Extracting assets to config directory...");
         self.extract_jars()?;
         self.extract_tools()?;
+        self.write_version_file()?;
+        println!("Assets extracted successfully.");
+        Ok(())
+    }
+
+    fn write_version_file(&self) -> Result<()> {
+        let version_file = self.tools_path.join(".version");
+        let current_version = env!("CARGO_PKG_VERSION");
+        fs::write(version_file, current_version)?;
         Ok(())
     }
 
     fn extract_jars(&self) -> Result<()> {
         let jars_dir = self.tools_path.join("jars");
-        std::fs::create_dir_all(&jars_dir)?;
+        fs::create_dir_all(&jars_dir)?;
 
         // Extract JAR files
-        std::fs::write(jars_dir.join("apktool.jar"), APKTOOL_JAR)?;
-        std::fs::write(jars_dir.join("procyon-decompiler-v0.6.1.jar"), PROCYON_JAR)?;
+        fs::write(jars_dir.join("apktool.jar"), APKTOOL_JAR)?;
+        fs::write(jars_dir.join("procyon-decompiler-v0.6.1.jar"), PROCYON_JAR)?;
 
         Ok(())
     }
@@ -53,7 +92,7 @@ impl AssetManager {
 
     fn extract_embedded_dir(&self, embedded_dir: &Dir, dest_path: &Path) -> Result<()> {
         // Create the destination directory
-        std::fs::create_dir_all(dest_path)?;
+        fs::create_dir_all(dest_path)?;
 
         // Recursively extract files from the embedded directory
         self.extract_dir_recursive(embedded_dir, dest_path, "")?;
@@ -74,20 +113,20 @@ impl AssetManager {
 
             // Create parent directories if they don't exist
             if let Some(parent) = dest_file_path.parent() {
-                std::fs::create_dir_all(parent)?;
+                fs::create_dir_all(parent)?;
             }
 
             // Write the file content
-            std::fs::write(&dest_file_path, file.contents())?;
+            fs::write(&dest_file_path, file.contents())?;
 
             // Make .sh files executable on Unix systems
             #[cfg(unix)]
             {
                 if dest_file_path.extension().and_then(|s| s.to_str()) == Some("sh") {
                     use std::os::unix::fs::PermissionsExt;
-                    let mut perms = std::fs::metadata(&dest_file_path)?.permissions();
+                    let mut perms = fs::metadata(&dest_file_path)?.permissions();
                     perms.set_mode(0o755);
-                    std::fs::set_permissions(&dest_file_path, perms)?;
+                    fs::set_permissions(&dest_file_path, perms)?;
                 }
             }
         }
